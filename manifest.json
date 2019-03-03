@@ -1,0 +1,20 @@
+{
+  "name": "Leetcode Clock",
+  "version": "1.0",
+  "description": "Add a timer/stopwatch on Leetcode to track your coding time!",
+  "permissions": [],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [{
+    "matches": ["https://leetcode.com/problems/*/"],
+    "js": ["src/inject.js"],
+    "run_at": "document_idle"
+  }],
+  "web_accessible_resources": [
+    "assets/*.png",
+    "assets/*.svg"
+  ],
+  "manifest_version": 2
+}
