@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        user-select: none;
+      }
+      p, h2, h3 {
+        margin: 0;
+        padding: 3px 0;
+      }
+      td {
+        text-align: center;
+        padding: 0;
+      }
+      tr {
+        height: 28px;
+      }
+      table {
+        margin: auto;
+      }
+      .popup_main {
+        width: 240px;
+      }
+      .usage_title {
+        padding: 3px 0;
+      }
+      .icon {
+        padding-right: 4px;
+      }
+      .flex_parent {
+        display:flex;
+        align-items: center;
+      }
+      .time_set {
+        font-size: 16px;
+        padding: 0 1px;
+        transition: all 200ms;
+      }
+      .time_set:hover {
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.36));
+        opacity: 0.46;
+      }
+      .difficulty {
+        color: rgb(255, 255, 255);
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+      .table_sep {
+        width: 16px;
+      }
+      .unit {
+        font-size: 10px;
+      }
+      .submit_btn {
+        height: 32px;
+        width: 68px;
+        margin: 6px 0;
+        border: none;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 4px;
+        outline: none;
+        background-color: rgba(0, 0, 0, 0.15);
+        transition: background-color 200ms;
+      }
+      .submit_btn:hover {
+        background-color: rgba(0, 0, 0, 0.25);
+      }
+      .btn_container {
+        justify-content: space-evenly;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="popup_main">
+      <div class="popup_usage">
+        <div class="usage_title flex_parent">
+          <img class="icon" src="assets/timer.png">
+          <h2>Timer Mode</h2>
+        </div>
+        <p>
+          The countdown timer mode is default. Starting times for different
+          difficulties can be adjusted below.
+        </p>
+        <div class="usage_title flex_parent">
+          <img class="icon" src="assets/stopwatch.png">
+          <h2>Stopwatch Mode</h2>
+        </div>
+        <p>
+          The stopwatch mode tracks the time spent when solving a problem.
+          The maximum recorded time is 99:59:59 (359999 seconds).
+        </p>
+        <div class="usage_title flex_parent">
+          <h2>Adjusting Time</h2>
+        </div>
+        <p>
+          Hover mouse on the time display and use mouse wheel to scroll
+          up (more time) or down (less time) to adjust time.
+        </p>
+      </div>
+      <div class="popup_setting">
+        <h2>Default Timer Setting</h2>
+        <table>
+          <tr>
+            <td><h3 class="difficulty" style="background-color: rgb(67, 160, 71)">Easy</h3></td>
+            <td class="table_sep"></td>
+            <td><p id="time_easy_hr" class="time_set"></p></td>
+            <td><p class="unit">H</p></td>
+            <td><p id="time_easy_min" class="time_set"></p></td>
+            <td><p class="unit">M</p></td>
+            <td><p id="time_easy_sec" class="time_set"></p></td>
+            <td><p class="unit">S</p></td>
+          </tr>
+          <tr>
+            <td><h3 class="difficulty" style="background-color: rgb(239, 108, 0)">Medium</h3></td>
+            <td class="table_sep"></td>
+            <td><p id="time_medium_hr" class="time_set"></p></td>
+            <td><p class="unit">H</p></td>
+            <td><p id="time_medium_min" class="time_set"></p></td>
+            <td><p class="unit">M</p></td>
+            <td><p id="time_medium_sec" class="time_set"></p></td>
+            <td><p class="unit">S</p></td>
+          </tr>
+          <tr>
+            <td><h3 class="difficulty" style="background-color: rgb(233, 30, 99)">Hard</h3></td>
+            <td class="table_sep"></td>
+            <td><p id="time_hard_hr" class="time_set"></p></td>
+            <td><p class="unit">H</p></td>
+            <td><p id="time_hard_min" class="time_set"></p></td>
+            <td><p class="unit">M</p></td>
+            <td><p id="time_hard_sec" class="time_set"></p></td>
+            <td><p class="unit">S</p></td>
+          </tr>
+        </table>
+        <div class="flex_parent btn_container">
+          <button class="submit_btn" type="button" name="accept"><strong>Save</strong></button>
+          <button class="submit_btn" type="button" name="cancel"><strong>Cancel</strong></button>
+        </div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
