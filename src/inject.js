@@ -140,6 +140,7 @@ function createClockScreen() {
   segHours.innerText = diff_time[diff][0].toString().padStart(2, '0');
   segMinutes.innerText = diff_time[diff][1].toString().padStart(2, '0');
   segSeconds.innerText = diff_time[diff][2].toString().padStart(2, '0');
+  TIME = diff_time[diff][0] * 3600 + diff_time[diff][1] * 60 + diff_time[diff][2];
   segDelim1.innerText = ':';
   segDelim2.innerText = ':';
 
