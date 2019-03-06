@@ -63,10 +63,13 @@
         border-radius: 4px;
         outline: none;
         background-color: rgba(0, 0, 0, 0.15);
-        transition: background-color 200ms;
+        transition: all 200ms;
       }
       .submit_btn:hover {
         background-color: rgba(0, 0, 0, 0.25);
+      }
+      .submit_btn:active {
+        background-color: rgba(0, 0, 0, 0.35);
       }
       .btn_container {
         justify-content: space-evenly;
@@ -135,8 +138,8 @@
           </tr>
         </table>
         <div class="flex_parent btn_container">
-          <button class="submit_btn" type="button" name="accept"><strong>Save</strong></button>
-          <button class="submit_btn" type="button" name="cancel"><strong>Cancel</strong></button>
+          <button id="btn_accept" class="submit_btn" type="button" name="accept"><strong>Save</strong></button>
+          <button id="btn_cancel" class="submit_btn" type="button" name="cancel"><strong>Cancel</strong></button>
         </div>
       </div>
     </div>
