@@ -32,6 +32,48 @@ function elementTranslate(elem, y1, y2) {
   });
 }
 
+function loadDefaultTime(diff) {
+  chrome.storage.sync.get([diff], function(result) {
+    var hr = result[diff]['hr'], min = result[diff]['min'], sec = result[diff]['sec'];
+    document.getElementById('lc_clock_segment_hr').innerText = hr;
+    document.getElementById('lc_clock_segment_min').innerText = min;
+    document.getElementById('lc_clock_segment_sec').innerText = sec;
+    TIME = parseInt(hr) * 3600 + parseInt(min) * 60 + parseInt(sec);
+  });
+}
+
+function zeroTime() {
+  document.getElementById('lc_clock_segment_hr').innerText = '00';
+  document.getElementById('lc_clock_segment_min').innerText = '00';
+  document.getElementById('lc_clock_segment_sec').innerText = '00';
+  TIME = 0;
+}
+
+function tick() {
+  var dlt = document.getElementById('lc_mode_selector').getAttribute('mode') === 'timer' ? -1 : 1;
+  if ((TIME === 0 && dlt === -1) || (TIME === 359999 && dlt === 1)) {
+    countStop();
+    return;
+  }
+  TIME += dlt;
+  var hr = Math.floor(TIME / 3600);
+  var min = Math.floor((TIME - (3600 * hr)) / 60);
+  var sec = TIME % 60;
+  document.getElementById('lc_clock_segment_hr').innerText = hr.toString().padStart(2, '0');
+  document.getElementById('lc_clock_segment_min').innerText = min.toString().padStart(2, '0');
+  document.getElementById('lc_clock_segment_sec').innerText = sec.toString().padStart(2, '0');
+}
+
+function countStart() {
+  if (TIMEHANDLE === undefined)
+    TIMEHANDLE = window.setInterval(tick, 1000);
+}
+
+function countStop() {
+  clearInterval(TIMEHANDLE);
+  TIMEHANDLE = undefined;
+}
+
 
 window.addEventListener("load", function() {
   var callback = injectLcClock;
@@ -83,7 +125,6 @@ function createModeSelector(parent) {
   };
   setStyle(modeSelector, modeSelectorStyle);
 
-
   var timerIcon = document.createElement('img');
   timerIcon.src = chrome.runtime.getURL('assets/timer.png');
   timerIcon.id = 'lc_timer_icon';
@@ -102,12 +143,17 @@ function createModeSelector(parent) {
     if (modeSelector.getAttribute('mode') === 'timer') {
       elementTranslate(modeSelector, 0, -32);
       modeSelector.setAttribute('mode', 'stopwatch');
+      zeroTime();
+      countStop();
     }
   };
   stopwatchIcon.onclick = function() {
     if (modeSelector.getAttribute('mode') === 'stopwatch') {
-      elementTranslate(modeSelector, 0, -32);
+      elementTranslate(modeSelector, -32, 0);
       modeSelector.setAttribute('mode', 'timer');
+      var diff = document.querySelector('div[diff]').getAttribute('diff');
+      loadDefaultTime(diff);
+      countStop();
     }
   };
 
@@ -132,17 +178,14 @@ function createClockScreen() {
   var segSeconds = document.createElement('span');
   var segDelim1 = document.createElement('span');
   var segDelim2 = document.createElement('span');
-  var diff_time = {'easy': [0, 15, 0], 'medium': [0, 30, 0], 'hard': [0, 45, 0]};
-  var diff = document.querySelector('div[diff]').getAttribute('diff');
   segHours.id = 'lc_clock_segment_hr';
   segMinutes.id = 'lc_clock_segment_min';
   segSeconds.id = 'lc_clock_segment_sec';
-  segHours.innerText = diff_time[diff][0].toString().padStart(2, '0');
-  segMinutes.innerText = diff_time[diff][1].toString().padStart(2, '0');
-  segSeconds.innerText = diff_time[diff][2].toString().padStart(2, '0');
-  TIME = diff_time[diff][0] * 3600 + diff_time[diff][1] * 60 + diff_time[diff][2];
   segDelim1.innerText = ':';
   segDelim2.innerText = ':';
+
+  var diff = document.querySelector('div[diff]').getAttribute('diff');
+  loadDefaultTime(diff);
 
   var segmentStyles = {
     'fontSize': '16px',
@@ -161,6 +204,8 @@ function createClockScreen() {
     this.style.filter = '';
   }
   var segmentOnScroll = function(e) {
+    if (TIMEHANDLE !== undefined)
+      return;
     var dlt = e.deltaY < 0 ? 1 : -1;
     var t = {'lc_clock_segment_hr': 3600, 'lc_clock_segment_min': 60, 'lc_clock_segment_sec': 1};
     var newTime = TIME + dlt * t[this.getAttribute('id')];
@@ -236,27 +281,6 @@ function createControlPanel() {
   pauseButton.appendChild(pauseImg);
   resetButton.appendChild(resetImg);
 
-  var tick = function() {
-    var dlt = document.getElementById('lc_mode_selector').getAttribute('mode') === 'timer' ? -1 : 1;
-    if ((TIME === 0 && dlt === -1) || (TIME === 359999 && dlt === 1)) {
-      clearInterval(TIMEHANDLE);
-      TIMEHANDLE = undefined;
-      return;
-    }
-    TIME += dlt;
-    var hr = Math.floor(TIME / 3600);
-    var min = Math.floor((TIME - (3600 * hr)) / 60);
-    var sec = TIME % 60;
-    document.getElementById('lc_clock_segment_hr').innerText = hr.toString().padStart(2, '0');
-    document.getElementById('lc_clock_segment_min').innerText = min.toString().padStart(2, '0');
-    document.getElementById('lc_clock_segment_sec').innerText = sec.toString().padStart(2, '0');
-  }
-  var clear = function() {
-    document.getElementById('lc_clock_segment_hr').innerText = '00';
-    document.getElementById('lc_clock_segment_min').innerText = '00';
-    document.getElementById('lc_clock_segment_sec').innerText = '00';
-  }
-
   var buttonOnHover = function() {
     this.style.opacity = 0.72;
     this.style.filter = 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.23))';
@@ -273,23 +297,24 @@ function createControlPanel() {
     var min = document.getElementById('lc_clock_segment_min').innerText;
     var sec = document.getElementById('lc_clock_segment_sec').innerText;
     TIME = parseInt(hr) * 3600 + parseInt(min) * 60 + parseInt(sec);
-    if (TIMEHANDLE === undefined)
-      TIMEHANDLE = window.setInterval(tick, 1000);
+    countStart();
   }
   pauseButton.onmouseover = buttonOnHover;
   pauseButton.onmouseout = buttonOnOut;
   pauseButton.onclick = function() {
-    clearInterval(TIMEHANDLE);
-    TIMEHANDLE = undefined;
+    countStop();
   }
 
   resetButton.onmouseover = buttonOnHover;
   resetButton.onmouseout = buttonOnOut;
   resetButton.onclick = function() {
-    TIME = 0;
-    clearInterval(TIMEHANDLE);
-    TIMEHANDLE = undefined;
-    clear();
+    if (document.getElementById('lc_mode_selector').getAttribute('mode') === 'timer') {
+      var diff = document.querySelector('div[diff]').getAttribute('diff');
+      loadDefaultTime(diff);
+    } else {
+      zeroTime();
+    }
+    countStop();
   }
 
   appendChildren(controlPanel, [startButton, pauseButton, resetButton]);
